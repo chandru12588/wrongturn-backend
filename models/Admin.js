@@ -6,7 +6,7 @@ const adminSchema = new mongoose.Schema({
   role: { type: String, default: 'admin' }
 }, { timestamps: true });
 
-console.log("🔥 adminAuth.js LOADED");
+
 
 
 export default mongoose.model('admin', adminSchema);

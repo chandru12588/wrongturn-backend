@@ -87,7 +87,6 @@ const startServer = async () => {
     app.listen(PORT, () => {
       console.log(`🚀 Wrong Turn backend running on port ${PORT}`);
     });
-
   } catch (err) {
     console.error("❌ Server startup failed:", err.message);
     process.exit(1);
