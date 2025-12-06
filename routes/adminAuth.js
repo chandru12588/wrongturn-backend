@@ -7,14 +7,14 @@ dotenv.config();
 
 const router = express.Router();
 
+/* ------------------ TEST ROUTE ------------------ */
 router.get("/test", (req, res) => {
   res.send("Admin Auth Route Working 👍");
 });
 
-
 /*
 |--------------------------------------------------------------------------
-| REGISTER ADMIN (One-time)
+| REGISTER ADMIN (Only once)
 | POST /api/admin/auth/register
 |--------------------------------------------------------------------------
 */
@@ -80,6 +80,34 @@ router.post("/login", async (req, res) => {
   } catch (err) {
     console.log("LOGIN ERROR:", err);
     res.status(500).json({ msg: "Server error" });
+  }
+});
+
+/*
+|--------------------------------------------------------------------------
+| 🔥 RESET ADMIN PASSWORD (Temporary)
+| POST /api/admin/auth/reset
+|--------------------------------------------------------------------------
+*/
+router.post("/reset", async (req, res) => {
+  try {
+    const email = "admin@wrongturn.com"; // your admin email
+    const newPassword = "WrongTurn@123"; // new password
+
+    const admin = await Admin.findOne({ email });
+    if (!admin) {
+      return res.status(404).json({ msg: "Admin not found" });
+    }
+
+    const hashed = await bcrypt.hash(newPassword, 10);
+
+    admin.password = hashed;
+    await admin.save();
+
+    res.json({ msg: "Admin password reset successful!" });
+
+  } catch (err) {
+    res.status(500).json({ msg: "Reset failed", error: err.message });
   }
 });
 
