@@ -23,9 +23,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "http://localhost:5174",
-      "http://localhost:5175",
-      "https://wrongturn-frontend.vercel.app"
+      "https://wrongturn-frontend.vercel.app",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -33,7 +31,6 @@ app.use(
   })
 );
 
-// Allow browser OPTIONS preflight
 app.options("*", cors());
 
 /* ---------------------- BODY PARSERS ---------------------- */
@@ -51,7 +48,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/admin/packages", adminPackageRoutes);
 
-/* -------- PUBLIC: All packages -------- */
+/* Public: Get all packages */
 app.get("/api/packages", async (req, res) => {
   try {
     const pkgs = await Package.find().sort({ createdAt: -1 });
@@ -61,7 +58,7 @@ app.get("/api/packages", async (req, res) => {
   }
 });
 
-/* -------- PUBLIC: Single package -------- */
+/* Public: Get single package */
 app.get("/api/packages/:id", async (req, res) => {
   try {
     const pkg = await Package.findById(req.params.id);
