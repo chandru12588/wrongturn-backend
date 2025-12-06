@@ -13,12 +13,12 @@ import Package from "./models/Package.js";
 dotenv.config();
 const app = express();
 
-/* ---------------------- HEALTH ROUTE — MUST BE FIRST ---------------------- */
+/* ---------------------- HEALTH CHECK ---------------------- */
 app.get("/", (req, res) => {
-  res.send("Backend Live");
+  return res.status(200).send("Backend Live");
 });
 
-/* ---------------------- CORS SETUP ---------------------- */
+/* ---------------------- CORS ---------------------- */
 app.use(
   cors({
     origin: [
@@ -26,16 +26,12 @@ app.use(
       "http://localhost:5174",
       "http://localhost:5175",
       "https://wrongturn-frontend.vercel.app",
-      
     ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
-app.options("*", cors());
 
-/* ---------------------- BODY PARSING ---------------------- */
+/* ---------------------- BODY PARSERS ---------------------- */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -43,36 +39,31 @@ app.use(express.urlencoded({ extended: true }));
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-/* ---------------------- FILE UPLOADS ---------------------- */
-const localUpload = multer({ dest: path.join(__dirname, "uploads") });
+/* ---------------------- STATIC UPLOADS ---------------------- */
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-/* ---------------------- TEST ROUTE ---------------------- */
-app.get("/api/test", (req, res) => {
-  res.json({ message: "Wrong Turn backend working 🚀" });
-});
-
-/* ---------------------- ADMIN ROUTES ---------------------- */
+/* ---------------------- ROUTES ---------------------- */
 app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/admin/packages", adminPackageRoutes);
 
-/* ---------------------- PUBLIC ROUTES ---------------------- */
+/* Public route: get packages */
 app.get("/api/packages", async (req, res) => {
   try {
     const pkgs = await Package.find().sort({ createdAt: -1 });
     res.json(pkgs);
   } catch (err) {
-    res.status(500).json({ msg: "Error loading packages", error: err.message });
+    res.status(500).json({ msg: "Error loading packages" });
   }
 });
 
+/* Public route: get single package */
 app.get("/api/packages/:id", async (req, res) => {
   try {
     const pkg = await Package.findById(req.params.id);
     if (!pkg) return res.status(404).json({ msg: "Package not found" });
     res.json(pkg);
   } catch (err) {
-    res.status(500).json({ msg: "Error loading package", error: err.message });
+    res.status(500).json({ msg: "Error loading package" });
   }
 });
 
@@ -81,14 +72,14 @@ const PORT = process.env.PORT || 8080;
 
 const startServer = async () => {
   try {
-    await connectDB();
+    await connectDB();   // Connect ONCE only
     console.log("MongoDB connected");
 
-    app.listen(PORT, () => {
-      console.log(`🚀 Wrong Turn backend running on port ${PORT}`);
-    });
+    app.listen(PORT, () =>
+      console.log(`🚀 Wrong Turn backend running on port ${PORT}`)
+    );
   } catch (err) {
-    console.error("❌ Server startup failed:", err.message);
+    console.error("❌ Server startup failed:", err);
     process.exit(1);
   }
 };
