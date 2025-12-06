@@ -18,12 +18,12 @@ app.get("/", (req, res) => {
   return res.status(200).send("Backend Live");
 });
 
-/* ---------------------- CORS ---------------------- */
+/* ---------------------- CORS FIX ---------------------- */
 app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://wrongturn-frontend.vercel.app",
+      "https://wrongturn-frontend.vercel.app"
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
