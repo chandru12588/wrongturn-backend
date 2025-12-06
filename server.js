@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
 import { connectDB } from "./config/db.js";
@@ -13,17 +12,17 @@ import Package from "./models/Package.js";
 dotenv.config();
 const app = express();
 
-/* ---------------------- HEALTH CHECK ---------------------- */
+/* Health check */
 app.get("/", (req, res) => {
   return res.status(200).send("Backend Live");
 });
 
-/* ---------------------- CORS FIX ---------------------- */
+/* CORS */
 app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://wrongturn-frontend-9pi4.vercel.app"
+      "https://wrongturn-frontend-9pi4.vercel.app",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -33,22 +32,18 @@ app.use(
 
 app.options("*", cors());
 
-/* ---------------------- BODY PARSERS ---------------------- */
 app.use(express.json({ limit: "25mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-/* ---------------------- __dirname FIX ---------------------- */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-/* ---------------------- STATIC UPLOADS ---------------------- */
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-/* ---------------------- ROUTES ---------------------- */
 app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/admin/packages", adminPackageRoutes);
 
-/* Public: Get all packages */
+/* Public routes */
 app.get("/api/packages", async (req, res) => {
   try {
     const pkgs = await Package.find().sort({ createdAt: -1 });
@@ -58,7 +53,6 @@ app.get("/api/packages", async (req, res) => {
   }
 });
 
-/* Public: Get single package */
 app.get("/api/packages/:id", async (req, res) => {
   try {
     const pkg = await Package.findById(req.params.id);
@@ -69,7 +63,6 @@ app.get("/api/packages/:id", async (req, res) => {
   }
 });
 
-/* ---------------------- START SERVER ---------------------- */
 const PORT = process.env.PORT || 8080;
 
 const startServer = async () => {
