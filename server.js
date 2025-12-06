@@ -23,8 +23,8 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "http://localhost:514",
-       "http://localhost:5175"
+      "http://localhost:5174",
+      "http://localhost:5175"
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -64,7 +64,17 @@ app.get("/api/packages", async (req, res) => {
   }
 });
 
-/* ---------------------- Start Server (FIXED) ---------------------- */
+app.get("/api/packages/:id", async (req, res) => {
+  try {
+    const pkg = await Package.findById(req.params.id);
+    if (!pkg) return res.status(404).json({ msg: "Package not found" });
+    res.json(pkg);
+  } catch (err) {
+    res.status(500).json({ msg: "Error loading package", error: err.message });
+  }
+});
+
+/* ---------------------- Start Server ---------------------- */
 const PORT = process.env.PORT || 8080;
 
 const startServer = async () => {

@@ -14,20 +14,24 @@ cloudinary.v2.config({
 const router = express.Router();
 const upload = multer();
 
-/* ---------------- ADMIN: GET ALL ---------------- */
+/* ===========================
+      ADMIN ROUTES
+   =========================== */
+
+/* Admin: Get all packages */
 router.get("/", requireAdmin, async (req, res) => {
   const pkgs = await Package.find().sort({ createdAt: -1 });
   res.json(pkgs);
 });
 
-/* ---------------- ADMIN: GET ONE (fixes EDIT page) ---------------- */
+/* Admin: Get single package */
 router.get("/:id", requireAdmin, async (req, res) => {
   const pkg = await Package.findById(req.params.id);
   if (!pkg) return res.status(404).json({ msg: "Package not found" });
   res.json(pkg);
 });
 
-/* ---------------- ADMIN: CREATE ---------------- */
+/* Admin: Create package */
 router.post("/", requireAdmin, upload.array("images", 8), async (req, res) => {
   try {
     const body = JSON.parse(req.body.data || "{}");
@@ -60,7 +64,7 @@ router.post("/", requireAdmin, upload.array("images", 8), async (req, res) => {
   }
 });
 
-/* ---------------- ADMIN: UPDATE ---------------- */
+/* Admin: Update */
 router.put("/:id", requireAdmin, upload.array("images", 8), async (req, res) => {
   try {
     const body = JSON.parse(req.body.data || "{}");
@@ -79,7 +83,6 @@ router.put("/:id", requireAdmin, upload.array("images", 8), async (req, res) => 
         });
         addedImgs.push(uploadRes.secure_url);
       }
-
       body.images = [...pkg.images, ...addedImgs];
     }
 
@@ -91,23 +94,11 @@ router.put("/:id", requireAdmin, upload.array("images", 8), async (req, res) => 
   }
 });
 
-/* ---------------- ADMIN: DELETE ---------------- */
+/* Admin: Delete */
 router.delete("/:id", requireAdmin, async (req, res) => {
   await Package.findByIdAndDelete(req.params.id);
   res.json({ ok: true });
 });
 
-/* ---------------- PUBLIC: GET ALL ---------------- */
-router.get("/public/all", async (req, res) => {
-  const pkgs = await Package.find().sort({ createdAt: -1 });
-  res.json(pkgs);
-});
-
-/* ---------------- PUBLIC: GET ONE ---------------- */
-router.get("/public/:id", async (req, res) => {
-  const pkg = await Package.findById(req.params.id);
-  if (!pkg) return res.status(404).json({ msg: "Package not found" });
-  res.json(pkg);
-});
-
+/* Export admin router */
 export default router;
